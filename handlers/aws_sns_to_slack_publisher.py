@@ -160,7 +160,7 @@ def handler(event, context):
     slack_message = _get_message_from_event(event)
     _validate_slack_message_schema(slack_message, SLACK_MESSAGE_SCHEMA)
     default_slack_channel = _sanitize_slack_channel_name(SLACK_DEFAULT_CHANNEL)
-    _check_slack_channel_exists(SLACK_API_TOKEN, slack_channel)
+    _check_slack_channel_exists(SLACK_API_TOKEN, default_slack_channel)
     slack_response = _publish_slack_message(SLACK_API_TOKEN,
                                             default_slack_channel,
                                             slack_message)
