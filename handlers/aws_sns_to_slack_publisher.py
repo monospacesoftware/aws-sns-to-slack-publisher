@@ -96,9 +96,10 @@ def _get_message_from_event(event: dict) -> dict:
 
 
 @retry(wait=wait_exponential(), stop=stop_after_delay(15))
-def _publish_slack_message(token: str, channel: str, message: dict) -> dict:
+def _publish_slack_message(token: str, default_channel: str, message: dict) -> dict:
     '''Publish message to Slack'''
-    message['channel'] = channel
+    if not message.get('channel'):
+        message['channel'] = default_channel
     _logger.debug('Slack message: {}'.format(json.dumps(message)))
     # XXX: Don't log the token in the debug call.
     message['token'] = token
@@ -158,10 +159,10 @@ def handler(event, context):
     _logger.debug('Event received: {}'.format(json.dumps(event)))
     slack_message = _get_message_from_event(event)
     _validate_slack_message_schema(slack_message, SLACK_MESSAGE_SCHEMA)
-    slack_channel = _sanitize_slack_channel_name(SLACK_DEFAULT_CHANNEL)
+    default_slack_channel = _sanitize_slack_channel_name(SLACK_DEFAULT_CHANNEL)
     _check_slack_channel_exists(SLACK_API_TOKEN, slack_channel)
     slack_response = _publish_slack_message(SLACK_API_TOKEN,
-                                            slack_channel,
+                                            default_slack_channel,
                                             slack_message)
 
     resp = {
